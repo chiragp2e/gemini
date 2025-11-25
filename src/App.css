@@ -1,0 +1,390 @@
+@import url('https://fonts.cdnfonts.com/css/roobert');
+
+@import url('https://fonts.cdnfonts.com/css/roobert');
+
+:root {
+  font-family: 'Roobert', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #0f172a;
+  background-color: #ffffff;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+#root {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.app__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-weight: 400;
+  color: #9bb5ff;
+  margin: 0 0 8px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+}
+
+.subtle {
+  margin-top: 8px;
+  color: #475569;
+  max-width: 520px;
+}
+
+.cards-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.card-panel {
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.panel-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 400;
+  color: #475569;
+}
+
+.field input,
+.field select,
+.field textarea {
+  background: #f8fafc;
+  border: 1px solid #d7dce5;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #0f172a;
+  font-size: 1rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.field textarea {
+  min-height: 92px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #0ea5e9;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+button {
+  border: 1px solid #0f172a;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 400;
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: none;
+  transition: background 150ms ease, opacity 150ms ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.ghost {
+  background: transparent;
+  border-color: #0f172a;
+  color: #0f172a;
+}
+
+.status {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+.status--success {
+  color: #16a34a;
+}
+
+.status--error {
+  color: #dc2626;
+}
+
+.status--pending {
+  color: #ca8a04;
+}
+
+.result-box {
+  border-radius: 12px;
+  border: 1px solid #e4e7ec;
+  background: #f8fafc;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.result-box strong {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: #0f172a;
+}
+
+.result-box--success {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.result-box--error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.result-box--pending {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.label-stack span {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  color: #9fb3ff;
+  font-size: 0.85rem;
+}
+
+.footnote {
+  border-top: 1px solid #e4e7ec;
+  padding-top: 16px;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+code {
+  background: rgba(3, 7, 18, 0.65);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(102, 119, 188, 0.45);
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border: 1px solid #e4e7ec;
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.network-card-wrapper {
+  position: relative;
+}
+
+.network-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: #f3f5f9;
+  border: 1px solid #d7dce5;
+  color: #0f172a;
+  min-width: 140px;
+}
+
+.network-toggle strong {
+  font-weight: 400;
+  color: #0f172a;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.network-toggle small {
+  font-size: 0.75rem;
+  color: #0ea5e9;
+  letter-spacing: 0.08em;
+}
+
+.network-card-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.15);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.network-card-option {
+  text-align: left;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  padding: 12px;
+  color: #0f172a;
+}
+
+.network-card-option:hover {
+  border-color: #94a3b8;
+}
+
+.network-card-option.active {
+  border-color: #0ea5e9;
+  background: #e0f2fe;
+}
+
+.network-card-option .option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.network-card-option .option-header small {
+  color: #0ea5e9;
+  font-size: 0.75rem;
+}
+
+
+.connect-btn {
+  border-color: #0f172a;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 10px;
+}
+
+.quick-amounts {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-amounts button {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid #d7dce5;
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 10px 0;
+  font-weight: 400;
+}
+
+.quick-amounts button.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.tab-switcher {
+  display: inline-flex;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tab-switcher button {
+  border: none;
+  background: transparent;
+  color: #475569;
+  padding: 8px 14px;
+  border-right: 1px solid #e4e7ec;
+  border-radius: 0;
+}
+
+.tab-switcher button:last-child {
+  border-right: none;
+}
+
+.tab-switcher button.active {
+  background: #0f172a;
+  color: #ffffff;
+}
