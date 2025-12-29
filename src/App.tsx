@@ -287,7 +287,7 @@ function EvaluateTransactionCard({ network }: EvaluateTransactionCardProps) {
       activeTab === 'wallet'
         ? walletAddress.trim()
         : activeTab === 'gini'
-          ? normalizeKwlId(giniWalletId)
+          ? (giniWalletId)
           : normalizeKwlId(kwalaWalletId);
 
     if (!targetAddress) {
