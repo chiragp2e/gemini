@@ -8,6 +8,13 @@ import {
   evaluateKalpTransaction,
   submitKalpTransaction,
 } from './kalpClient';
+import {
+  getSeedPhrase,
+  getKeyPairFromSeedPhrase,
+  getEnrollmentId,
+  createCsr,
+  registerAndEnrollUser,
+} from './nglKeyService';
 import './App.css';
 
 type AsyncState =
@@ -143,6 +150,7 @@ function App() {
       </header>
 
       <main className="cards-grid">
+        <CreateKeysCard />
         <WriteTransactionCard network={network} />
         <EvaluateTransactionCard network={network} />
         <CustomSubmitCard network={network} />
@@ -227,7 +235,7 @@ function WriteTransactionCard({ network }: WriteTransactionCardProps) {
           <small>Automatically normalized to lowercase.</small>
         </label>
         <label className="field">
-          <span>Number of Gini</span>
+          <span>Number of Kwala</span>
           <input
             autoComplete="off"
             inputMode="decimal"
@@ -560,6 +568,109 @@ function CustomEvaluateCard({ network }: CustomEvaluateCardProps) {
         <ResultBox state={customState} />
       </form>
     </section>
+  );
+}
+
+type KeysResult = {
+  enrollmentId: string;
+  publicKey: string;
+  privateKey: string;
+  cert: string;
+};
+
+function CreateKeysCard() {
+  const [createKeysState, setCreateKeysState] = useState<AsyncState>(idleState);
+  const [keysResult, setKeysResult] = useState<KeysResult | null>(null);
+
+  const handleClickCreateKeys = async () => {
+    try {
+      setKeysResult(null);
+      setCreateKeysState({ status: 'pending', message: 'Generating seed phrase and key pair...' });
+
+      const seed = await getSeedPhrase();
+      const { pemPublicKey, pemPrivateKey } = await getKeyPairFromSeedPhrase(seed);
+
+      setCreateKeysState({ status: 'pending', message: 'Computing enrollment ID and CSR...' });
+
+      const enrollmentID = await getEnrollmentId(pemPublicKey);
+      const csrPem = createCsr(enrollmentID, pemPrivateKey, pemPublicKey);
+
+      localStorage.setItem('enrollmentId', enrollmentID);
+      localStorage.setItem('csr', csrPem);
+      localStorage.setItem('privateKey', pemPrivateKey);
+      localStorage.setItem('publicKey', pemPublicKey);
+
+      setCreateKeysState({ status: 'pending', message: 'Registering and enrolling on NGL testnet...' });
+
+      const certificate = await registerAndEnrollUser(enrollmentID, csrPem);
+      localStorage.setItem('cert', certificate);
+
+      setKeysResult({
+        enrollmentId: enrollmentID,
+        publicKey: pemPublicKey,
+        privateKey: pemPrivateKey,
+        cert: certificate,
+      });
+      setCreateKeysState({
+        status: 'success',
+        message: `Keys created and registered successfully.`,
+      });
+    } catch (error) {
+      setCreateKeysState({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Failed to create and register keys.',
+      });
+    }
+  };
+
+  return (
+    <section className="card-panel">
+      <div className="panel-header">
+        <h2>Create &amp; Register Keys (NGL)</h2>
+        <p>Generate a key pair and register on the NGL testnet governance layer.</p>
+      </div>
+      <div className="form">
+        <button
+          type="button"
+          onClick={handleClickCreateKeys}
+          disabled={createKeysState.status === 'pending'}
+        >
+          {createKeysState.status === 'pending' ? 'Creating...' : 'Create and Register Keys'}
+        </button>
+        <ResultBox state={createKeysState} />
+        {keysResult && (
+          <div className="keys-output">
+            <CopyField label="Enrollment ID" value={keysResult.enrollmentId} />
+            <CopyField label="Public Key" value={keysResult.publicKey} />
+            <CopyField label="Private Key" value={keysResult.privateKey} />
+            <CopyField label="Certificate" value={keysResult.cert} />
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  return (
+    <div className="copy-field">
+      <div className="copy-field-header">
+        <span className="copy-field-label">{label}</span>
+        <button type="button" className="copy-btn" onClick={handleCopy}>
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
+      <pre className="copy-field-value">{value}</pre>
+    </div>
   );
 }
 
