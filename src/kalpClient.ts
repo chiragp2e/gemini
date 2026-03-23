@@ -9,7 +9,7 @@ type NetworkConfig = {
   chainCodeName: string;
 };
 
-export type KalpNetwork = 'DEVNET' | 'LOADNET' | 'PROD_TESTNET_NEW';
+export type KalpNetwork = 'DEVNET' | 'LOADNET' | 'PROD_TESTNET_NEW' | 'STAGENET';
 
 export const NETWORK_CONFIG: Record<KalpNetwork, NetworkConfig> = {
   DEVNET: {
@@ -28,6 +28,12 @@ export const NETWORK_CONFIG: Record<KalpNetwork, NetworkConfig> = {
     label: 'Prod Testnet',
     gatewayBaseUrl: 'https://rpc-mumbai-newtest.kalp.network/transaction/v1',
     channelName: 'kalptantra',
+    chainCodeName: 'klp-f02611a93e-cc',
+  },
+  STAGENET: {
+    label: 'Stagenet',
+    gatewayBaseUrl: 'https://stg-kalp-gateway.p2eppl.com/transaction/v1',
+    channelName: 'kalpstagenet_new',
     chainCodeName: 'klp-f02611a93e-cc',
   },
 };

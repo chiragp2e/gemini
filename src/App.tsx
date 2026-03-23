@@ -14,6 +14,7 @@ import {
   getEnrollmentId,
   createCsr,
   registerAndEnrollUser,
+  NGL_SUPPORTED_NETWORKS,
 } from './nglKeyService';
 import './App.css';
 
@@ -72,6 +73,17 @@ const convertGiniToRawUnits = (value: string) => {
   const paddedFraction = (fraction + '0'.repeat(GINI_DECIMALS)).slice(0, GINI_DECIMALS);
   const combined = `${whole}${paddedFraction}`.replace(/^0+/, '') || '0';
   return combined;
+};
+
+const downloadKeysFile = (keys: { enrollmentId: string; publicKey: string; privateKey: string; cert: string }) => {
+  const content = `Enrollment ID:\n${keys.enrollmentId}\n\nPublic Key:\n${keys.publicKey}\nPrivate Key:\n${keys.privateKey}\nCertificate:\n${keys.cert}\n`;
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `keys-${keys.enrollmentId.slice(0, 8)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
 };
 
 function App() {
@@ -579,6 +591,7 @@ type KeysResult = {
 };
 
 function CreateKeysCard() {
+  const [nglNetwork, setNglNetwork] = useState<KalpNetwork>(NGL_SUPPORTED_NETWORKS[0]);
   const [createKeysState, setCreateKeysState] = useState<AsyncState>(idleState);
   const [keysResult, setKeysResult] = useState<KeysResult | null>(null);
 
@@ -600,9 +613,10 @@ function CreateKeysCard() {
       localStorage.setItem('privateKey', pemPrivateKey);
       localStorage.setItem('publicKey', pemPublicKey);
 
-      setCreateKeysState({ status: 'pending', message: 'Registering and enrolling on NGL testnet...' });
+      const networkLabel = NETWORK_CONFIG[nglNetwork].label;
+      setCreateKeysState({ status: 'pending', message: `Registering and enrolling on ${networkLabel}...` });
 
-      const certificate = await registerAndEnrollUser(enrollmentID, csrPem);
+      const certificate = await registerAndEnrollUser(nglNetwork, enrollmentID, csrPem);
       localStorage.setItem('cert', certificate);
 
       setKeysResult({
@@ -613,7 +627,7 @@ function CreateKeysCard() {
       });
       setCreateKeysState({
         status: 'success',
-        message: `Keys created and registered successfully.`,
+        message: `Keys created and registered on ${networkLabel}.`,
       });
     } catch (error) {
       setCreateKeysState({
@@ -627,9 +641,24 @@ function CreateKeysCard() {
     <section className="card-panel">
       <div className="panel-header">
         <h2>Create &amp; Register Keys (NGL)</h2>
-        <p>Generate a key pair and register on the NGL testnet governance layer.</p>
+        <p>Generate a key pair and register on the NGL governance layer.</p>
       </div>
       <div className="form">
+        <label className="field">
+          <span>Network</span>
+          <div className="tab-switcher">
+            {NGL_SUPPORTED_NETWORKS.map((net) => (
+              <button
+                key={net}
+                type="button"
+                className={nglNetwork === net ? 'active' : ''}
+                onClick={() => setNglNetwork(net)}
+              >
+                {NETWORK_CONFIG[net].label}
+              </button>
+            ))}
+          </div>
+        </label>
         <button
           type="button"
           onClick={handleClickCreateKeys}
@@ -644,6 +673,13 @@ function CreateKeysCard() {
             <CopyField label="Public Key" value={keysResult.publicKey} />
             <CopyField label="Private Key" value={keysResult.privateKey} />
             <CopyField label="Certificate" value={keysResult.cert} />
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => downloadKeysFile(keysResult)}
+            >
+              Download All
+            </button>
           </div>
         )}
       </div>

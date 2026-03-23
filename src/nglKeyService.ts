@@ -2,13 +2,39 @@ import elliptic from 'elliptic';
 import { KEYUTIL, KJUR } from 'jsrsasign';
 import { ethers } from 'ethers';
 
-const NGL_GOVERNANCE_BASE_URL = 'https://ngl-userreg-test.kalp.network/v1';
-const NGL_CHANNEL_NAME = 'prod-testnet';
+import type { KalpNetwork } from './kalpClient';
+
 const REGISTER_URL = '/pki/register';
 const ENROLL_CSR_URL = '/pki/enrollCsr';
 const AUTHORIZATION_KEY =
   'f5b1aca0717e01d0dbca408d281e9e5145250acb146ff9f0844d53e95aab30b5';
 const MAX_ENROLLMENTS = '-1';
+
+type NglConfig = {
+  governanceBaseUrl: string;
+  channelName: string;
+};
+
+const NGL_CONFIGS: Partial<Record<KalpNetwork, NglConfig>> = {
+  PROD_TESTNET_NEW: {
+    governanceBaseUrl: 'https://ngl-userreg-test.kalp.network/v1',
+    channelName: 'prod-testnet',
+  },
+  STAGENET: {
+    governanceBaseUrl: 'https://stg-userreg-gov.p2eppl.com/v1',
+    channelName: 'kalpstagenet_new',
+  },
+};
+
+export const NGL_SUPPORTED_NETWORKS = Object.keys(NGL_CONFIGS) as KalpNetwork[];
+
+function getNglConfig(network: KalpNetwork): NglConfig {
+  const config = NGL_CONFIGS[network];
+  if (!config) {
+    throw new Error(`NGL registration is not supported for network: ${network}`);
+  }
+  return config;
+}
 
 const UPPER_CASE_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const LOWER_CASE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz';
@@ -118,6 +144,7 @@ export async function getSecret(enrollmentID: string): Promise<string> {
 }
 
 export async function registerAndEnrollUser(
+  network: KalpNetwork,
   enrollmentID: string,
   csr: string,
 ): Promise<string> {
@@ -125,10 +152,11 @@ export async function registerAndEnrollUser(
     throw new Error('Invalid enrollment ID: Must be 40 characters long.');
   }
 
+  const { governanceBaseUrl, channelName } = getNglConfig(network);
   const encryptedWord = await getSecret(enrollmentID);
 
   // Register
-  const registerEndpoint = NGL_GOVERNANCE_BASE_URL + REGISTER_URL;
+  const registerEndpoint = governanceBaseUrl + REGISTER_URL;
   const registerResponse = await fetch(registerEndpoint, {
     method: 'POST',
     headers: { Authorization: AUTHORIZATION_KEY },
@@ -136,7 +164,7 @@ export async function registerAndEnrollUser(
       enrollmentid: enrollmentID,
       secret: encryptedWord,
       maxenrollments: MAX_ENROLLMENTS,
-      channel: NGL_CHANNEL_NAME,
+      channel: channelName,
     }),
   });
 
@@ -146,7 +174,7 @@ export async function registerAndEnrollUser(
   }
 
   // Enroll CSR
-  const enrollEndpoint = NGL_GOVERNANCE_BASE_URL + ENROLL_CSR_URL;
+  const enrollEndpoint = governanceBaseUrl + ENROLL_CSR_URL;
   const enrollResponse = await fetch(enrollEndpoint, {
     method: 'POST',
     headers: { Authorization: AUTHORIZATION_KEY },
@@ -154,7 +182,7 @@ export async function registerAndEnrollUser(
       enrollmentid: enrollmentID,
       secret: encryptedWord,
       csr: csr,
-      channel: NGL_CHANNEL_NAME,
+      channel: channelName,
     }),
   });
 
