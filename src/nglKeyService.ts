@@ -24,6 +24,10 @@ const NGL_CONFIGS: Partial<Record<KalpNetwork, NglConfig>> = {
     governanceBaseUrl: 'https://stg-userreg-gov.p2eppl.com/v1',
     channelName: 'kalpstagenet_new',
   },
+  DEVNET: {
+    governanceBaseUrl: 'https://stg-userreg-gov.p2eppl.com/v1',
+    channelName: 'kalpdevnet_new',
+  },
 };
 
 export const NGL_SUPPORTED_NETWORKS = Object.keys(NGL_CONFIGS) as KalpNetwork[];
