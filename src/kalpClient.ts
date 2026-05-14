@@ -9,9 +9,15 @@ type NetworkConfig = {
   chainCodeName: string;
 };
 
-export type KalpNetwork = 'DEVNET' | 'LOADNET' | 'PROD_TESTNET_NEW' | 'STAGENET';
+export type KalpNetwork = 'LOCALHOST' | 'DEVNET' | 'LOADNET' | 'PROD_TESTNET_NEW' | 'STAGENET' | 'PRIVATE_TESTNET';
 
 export const NETWORK_CONFIG: Record<KalpNetwork, NetworkConfig> = {
+  LOCALHOST: {
+    label: 'Localhost',
+    gatewayBaseUrl: 'https://ks-dev-gateway.p2eppl.com/transaction/v1',
+    channelName: 'dev',
+    chainCodeName: 'klp-f02611a93e-cc',
+  },
   DEVNET: {
     label: 'Devnet',
     gatewayBaseUrl: 'https://dev-kalp-gateway.p2eppl.com/transaction/v1',
@@ -36,6 +42,12 @@ export const NETWORK_CONFIG: Record<KalpNetwork, NetworkConfig> = {
     channelName: 'stage',
     chainCodeName: 'klp-f02611a93e-cc',
   },
+  PRIVATE_TESTNET: {
+    label: 'Private Testnet',
+    gatewayBaseUrl: 'https://ks-dev-gateway.p2eppl.com/transaction/v1',
+    channelName: 'kalp',
+    chainCodeName: 'klp-f02611a93e-cc',
+  },
 };
 
 const ec = new elliptic.ec('p256');
@@ -49,6 +61,7 @@ type SubmitArgs = {
   chainCodeName: string;
   transactionName: string;
   transactionParams: string[];
+  isGasFeesDeducted?: boolean;
 };
 
 type EvaluateArgs = SubmitArgs;
@@ -60,6 +73,31 @@ type Credentials = {
 };
 
 const NETWORK_OVERRIDES: Partial<Record<KalpNetwork, Credentials>> = {
+  LOCALHOST: {
+    enrollmentId: '1c1751e5894735d8b28a00fa421195c034757315',
+    privateKey:
+      '-----BEGIN PRIVATE KEY-----\r\nMEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCBZ9YzVMlDjVDELLTU9\r\njMs8XwGARBUjD/jqpcCqAaS3iA==\r\n-----END PRIVATE KEY-----\r\n',
+    cert: `-----BEGIN CERTIFICATE-----
+MIIDLDCCAtKgAwIBAgIUCK1p1Mv0XMEQ/7WduS4HxTIsK9IwCgYIKoZIzj0EAwIw
+fTELMAkGA1UEBhMCSU4xFjAUBgNVBAgTDVV0dGFyIFByYWRlc2gxDjAMBgNVBAcT
+BU5vaWRhMRowGAYDVQQKExFQMkUgUHJvIFB2dC4gTHRkLjEPMA0GA1UECxMGY2xp
+ZW50MRkwFwYDVQQDExBkZXZuZXQtaW50LWFkbWluMCAXDTI2MDMyNTA4MTYwMFoY
+DzIxMjYwMzI2MDgxNjAwWjCBvDELMAkGA1UEBhMCSU4xFjAUBgNVBAgTDVlvdXIg
+UHJvdmluY2UxFjAUBgNVBAcTDVlvdXIgTG9jYWxpdHkxGjAYBgNVBAoTEVlvdXIg
+T3JnYW5pemF0aW9uMS4wDQYDVQQLEwZjbGllbnQwDQYDVQQLEwZkZXZuZXQwDgYD
+VQQLEwdjbGllbnRzMTEwLwYDVQQDEygxYzE3NTFlNTg5NDczNWQ4YjI4YTAwZmE0
+MjExOTVjMDM0NzU3MzE1MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAExnKA/LCH
+q3FDX+CSaIbeokDBlngzUGlaI1Fgj5LgNVaCuNtoKbnT7oIfpmCpX3j7Vpn62WZn
+KwlOXl9NZlAd3KOB7TCB6jAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAd
+BgNVHQ4EFgQUynVZmJ9ViEwTHka3zRTIhV+rto0wHwYDVR0jBBgwFoAUbqjGgff7
+R+xDCF5cm+jZVnoHCPkwgYkGCCoDBAUGBwgBBH17ImF0dHJzIjp7ImhmLkFmZmls
+aWF0aW9uIjoiZGV2bmV0LmNsaWVudHMiLCJoZi5FbnJvbGxtZW50SUQiOiIxYzE3
+NTFlNTg5NDczNWQ4YjI4YTAwZmE0MjExOTVjMDM0NzU3MzE1IiwiaGYuVHlwZSI6
+ImNsaWVudCJ9fTAKBggqhkjOPQQDAgNIADBFAiEAmev9YDshYMbJ2p5ghBDLW8qh
+54jLwYfO+WCTKdoL68kCIGNzE5Z2+31JPYZ1SplGqxfftee/Ad4teBkJzD4e7Bu1
+-----END CERTIFICATE-----
+`,
+  },
   DEVNET: {
     enrollmentId: '0b87970433b22494faff1cc7a819e71bddc7880c',
     privateKey:
@@ -194,6 +232,7 @@ export async function writeKalpTransaction(options: {
     chainCodeName: config.chainCodeName,
     transactionName: 'Transfer',
     transactionParams: [options.toAddress, options.amount],
+    isGasFeesDeducted: false,
   });
 }
 
@@ -252,6 +291,7 @@ export async function submitKalpTransaction(options: {
     chainCodeName: options.chainCodeName,
     transactionName: options.transactionName,
     transactionParams: options.transactionParams,
+    isGasFeesDeducted: false,
   });
 }
 
@@ -338,6 +378,7 @@ function buildTransactionPayload(args: SubmitArgs) {
     chainCodeName: args.chainCodeName,
     transactionName: args.transactionName,
     transactionParams: args.transactionParams,
+    isgasfeesdeducted: args.isGasFeesDeducted ?? false,
   };
 }
 

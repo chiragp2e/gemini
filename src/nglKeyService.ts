@@ -28,6 +28,10 @@ const NGL_CONFIGS: Partial<Record<KalpNetwork, NglConfig>> = {
     governanceBaseUrl: 'https://stg-userreg-gov.p2eppl.com/v1',
     channelName: 'kalpdevnet_new',
   },
+  PRIVATE_TESTNET: {
+    governanceBaseUrl: 'https://ks-dev-userreg-ngl.p2eppl.com/v1',
+    channelName: 'private-test-network',
+  },
 };
 
 export const NGL_SUPPORTED_NETWORKS = Object.keys(NGL_CONFIGS) as KalpNetwork[];
@@ -157,7 +161,7 @@ export async function registerAndEnrollUser(
   }
 
   const { governanceBaseUrl, channelName } = getNglConfig(network);
-  const encryptedWord = await getSecret(enrollmentID);
+  const encryptedWord = network === 'PRIVATE_TESTNET' ? 'Admin@132' : await getSecret(enrollmentID);
 
   // Register
   const registerEndpoint = governanceBaseUrl + REGISTER_URL;
